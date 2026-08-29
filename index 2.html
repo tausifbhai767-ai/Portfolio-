@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tausif Alam — B.Com Student &amp; Generative AI / Web Development Enthusiast</title>
+<meta name="description" content="Portfolio of Tausif Alam, a B.Com Multidisciplinary student building projects in Generative AI and web development, including a budget-tracking app.">
+
+<style>
+  /* ============================================================
+     DESIGN TOKENS
+     Theme: "Ledger" — a nod to Tausif's commerce background
+     (B.Com) fused with a builder's/dev aesthetic. The whole page
+     is drawn on a faint ruled-paper grid, like an account ledger,
+     and numeric/label text uses a mono face the way figures sit
+     in a ledger column.
+     ============================================================ */
+  :root{
+    --paper:      #EEF1EE;   /* page background: pale ledger paper */
+    --surface:    #FFFFFF;   /* card surfaces, lifted off the paper */
+    --ink:        #1B2420;   /* primary text */
+    --muted:      #5B6863;   /* secondary text */
+    --line:       #CDD6CF;   /* ledger rule lines / borders */
+    --green:      #2E6F4E;   /* "credit" accent — growth, primary CTA */
+    --green-deep: #1F4E37;   /* hover state for green */
+    --gold:       #B98A2E;   /* "highlight" accent — used sparingly */
+    --surface-2:  #E4E9E3;   /* slightly deeper paper, for stripes */
+
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+    --maxw: 1120px;
+    --radius: 14px;
+    --shadow: 0 6px 24px rgba(27, 36, 32, 0.08);
+    --shadow-hover: 0 12px 32px rgba(27, 36, 32, 0.14);
+  }
+
+  /* ============================================================
+     RESET & BASE
+     ============================================================ */
+  *, *::before, *::after{ box-sizing: border-box; }
+  html{
+    scroll-behavior: smooth;
+    scroll-padding-top: 84px; /* offset for fixed nav when jumping to anchors */
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior: auto; }
+    *, *::before, *::after{
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  body{
+    margin: 0;
+    background:
+      /* faint horizontal ledger rules across the whole page */
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 27px,
+        var(--surface-2) 27px,
+        var(--surface-2) 28px
+      ),
+      var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  img{ max-width: 100%; display: block; }
+  a{ color: inherit; text-decoration: none; }
+  ul{ margin: 0; padding: 0; list-style: none; }
+  button{ font-family: inherit; cursor: pointer; }
+  h1,h2,h3{ font-family: var(--font-display); margin: 0; line-height: 1.15; }
+  p{ margin: 0; }
+
+  :focus-visible{
+    outline: 2px solid var(--green);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  .container{
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .eyebrow{
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--green);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .eyebrow::before{
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    display: inline-block;
+  }
+
+  .section-heading{
+    font-size: clamp(1.7rem, 3vw, 2.4rem);
+    font-weight: 600;
+    margin: 10px 0 0;
+  }
+
+  section{ padding: 96px 0; scroll-margin-top: 84px; }
+
+  /* subtle reveal-on-scroll — JS toggles .is-visible */
+  .reveal{
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.is-visible{
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ============================================================
+     NAVIGATION
+     ============================================================ */
+  .site-nav{
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 500;
+    background: rgba(238, 241, 238, 0.88);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+  }
+  .brand{
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: var(--ink);
+  }
+  .brand span{ color: var(--green); font-style: normal; }
+
+  .nav-links{
+    display: flex;
+    gap: 32px;
+  }
+  .nav-links a{
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--muted);
+    padding: 6px 2px;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  .nav-links a:hover,
+  .nav-links a.active{
+    color: var(--ink);
+    border-color: var(--green);
+  }
+
+  .nav-toggle{
+    display: none;
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    width: 42px;
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .nav-toggle span,
+  .nav-toggle span::before,
+  .nav-toggle span::after{
+    content: "";
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--ink);
+    position: relative;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+  }
+  .nav-toggle span::before{ position: absolute; top: -6px; }
+  .nav-toggle span::after{ position: absolute; top: 6px; }
+  .nav-toggle[aria-expanded="true"] span{ background: transparent; }
+  .nav-toggle[aria-expanded="true"] span::before{ transform: translateY(6px) rotate(45deg); }
+  .nav-toggle[aria-expanded="true"] span::after{ transform: translateY(-6px) rotate(-45deg); }
+
+  /* ============================================================
+     HERO
+     Signature element: a hand-drawn-feel "ledger line" that
+     climbs across the hero like a rising balance — echoing the
+     budget / cashflow work in the Projects section.
+     ============================================================ */
+  .hero{
+    padding: 168px 0 96px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-grid{
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 48px;
+    align-items: center;
+  }
+  .hero h1{
+    font-size: clamp(2.4rem, 5.2vw, 4rem);
+    font-weight: 600;
+  }
+  .hero h1 em{
+    font-style: italic;
+    color: var(--green);
+  }
+  .hero-sub{
+    margin-top: 18px;
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    color: var(--green-deep);
+    letter-spacing: 0.01em;
+  }
+  .hero-copy{
+    margin-top: 22px;
+    max-width: 46ch;
+    color: var(--muted);
+    font-size: 1.05rem;
+  }
+  .hero-actions{
+    margin-top: 34px;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 26px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    border: 1px solid transparent;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+  }
+  .btn-primary{
+    background: var(--green);
+    color: #fff;
+    box-shadow: var(--shadow);
+  }
+  .btn-primary:hover{
+    background: var(--green-deep);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+  .btn-outline{
+    background: transparent;
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+  .btn-outline:hover{
+    background: var(--ink);
+    color: var(--paper);
+    transform: translateY(-2px);
+  }
+
+  .ledger-chart{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 22px;
+  }
+  .ledger-chart-head{
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+  }
+  .ledger-chart svg{ width: 100%; height: auto; display: block; }
+  .ledger-line{
+    stroke: var(--green);
+    stroke-width: 3;
+    fill: none;
+    stroke-linecap: round;
+    stroke-dasharray: 480;
+    stroke-dashoffset: 480;
+    animation: draw-line 2.2s ease forwards 0.4s;
+  }
+  .ledger-dot{
+    fill: var(--gold);
+    opacity: 0;
+    animation: pop-in 0.4s ease forwards 2.4s;
+  }
+  @keyframes draw-line{ to{ stroke-dashoffset: 0; } }
+  @keyframes pop-in{ to{ opacity: 1; } }
+
+  /* ============================================================
+     ABOUT
+     ============================================================ */
+  .about-grid{
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+  .card{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 30px;
+    box-shadow: var(--shadow);
+  }
+  .about-lead{
+    font-size: 1.15rem;
+    color: var(--ink);
+  }
+  .about-lead strong{ color: var(--green-deep); }
+  .interest-tags{
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .tag{
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--green-deep);
+    background: var(--surface-2);
+  }
+  .ledger-facts{ padding: 0; }
+  .ledger-facts .fact-row{
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 0.95rem;
+  }
+  .ledger-facts .fact-row:last-child{ border-bottom: none; }
+  .fact-row .k{
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+  .fact-row .v{ font-weight: 600; text-align: right; }
+
+  /* ============================================================
+     EXPERIENCE
+     ============================================================ */
+  .exp-card{
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: 4px 1fr;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .exp-rail{ background: var(--green); }
+  .exp-body{ padding: 32px 36px; }
+  .exp-head{
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: baseline;
+  }
+  .exp-role{ font-size: 1.3rem; font-weight: 600; font-family: var(--font-display); }
+  .exp-tag{
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .exp-desc{
+    margin-top: 14px;
+    color: var(--muted);
+    max-width: 68ch;
+  }
+  .skill-list{
+    margin-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .skill-list li{
+    font-size: 0.85rem;
+    padding: 8px 14px;
+    background: var(--surface-2);
+    border-radius: 8px;
+    font-weight: 500;
+  }
+
+  /* ============================================================
+     PROJECTS
+     ============================================================ */
+  .project-grid{
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
+  }
+  .project-card{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 30px;
+    box-shadow: var(--shadow);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+  }
+  .project-card:hover{
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+  }
+  .project-top{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .project-name{
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+  .project-index{
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--gold);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 3px 8px;
+  }
+  .project-desc{
+    margin-top: 14px;
+    color: var(--muted);
+    flex-grow: 1;
+  }
+  .project-stack{
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .project-stack li{
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    padding: 5px 10px;
+    background: var(--surface-2);
+    border-radius: 6px;
+    color: var(--green-deep);
+  }
+  .project-card .btn{ margin-top: 24px; align-self: flex-start; }
+
+  /* ============================================================
+     CONTACT
+     ============================================================ */
+  .contact-grid{
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 28px;
+  }
+  .contact-list{ padding: 0; }
+  .contact-list li + li{ margin-top: 14px; }
+  .contact-link{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .contact-link:hover{
+    border-color: var(--green);
+    transform: translateX(4px);
+  }
+  .contact-icon{
+    width: 20px; height: 20px;
+    flex-shrink: 0;
+    color: var(--green);
+  }
+  .contact-link .label{
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display: block;
+  }
+  .contact-link .value{ font-weight: 600; }
+
+  .form-field{ margin-bottom: 18px; }
+  .form-field label{
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .form-field input,
+  .form-field textarea{
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--ink);
+    transition: border-color 0.2s ease;
+  }
+  .form-field input:focus,
+  .form-field textarea:focus{
+    border-color: var(--green);
+    outline: none;
+  }
+  .form-field textarea{ resize: vertical; min-height: 110px; }
+
+  .form-status{
+    margin-top: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--green-deep);
+    min-height: 1.2em;
+  }
+  .form-status.visible{ animation: fade-in 0.4s ease; }
+  @keyframes fade-in{ from{ opacity: 0; } to{ opacity: 1; } }
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  footer{
+    border-top: 1px solid var(--line);
+    padding: 36px 0;
+  }
+  .footer-inner{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .footer-links{
+    display: flex;
+    gap: 22px;
+  }
+  .footer-links a{
+    font-size: 0.85rem;
+    color: var(--muted);
+    transition: color 0.2s ease;
+  }
+  .footer-links a:hover{ color: var(--green-deep); }
+  .footer-note{
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  /* ============================================================
+     BACK TO TOP
+     ============================================================ */
+  .back-to-top{
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+    z-index: 400;
+  }
+  .back-to-top.visible{
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .back-to-top:hover{ background: var(--green-deep); }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width: 860px){
+    .about-grid,
+    .contact-grid,
+    .project-grid{ grid-template-columns: 1fr; }
+    .hero-grid{ grid-template-columns: 1fr; }
+    .hero{ padding-top: 140px; }
+  }
+
+  @media (max-width: 720px){
+    .nav-links{
+      position: absolute;
+      top: 72px;
+      left: 0;
+      right: 0;
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+      flex-direction: column;
+      gap: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .nav-links.open{ max-height: 320px; }
+    .nav-links a{
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--line);
+      width: 100%;
+      border-left: 2px solid transparent;
+    }
+    .nav-links a.active{ border-left-color: var(--green); border-color: var(--line); }
+    .nav-toggle{ display: flex; }
+    section{ padding: 72px 0; }
+    .hero{ padding: 130px 0 64px; }
+    .exp-body{ padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAVIGATION
+     ============================================================ -->
+<header class="site-nav">
+  <nav class="container nav-inner" aria-label="Primary">
+    <a href="#home" class="brand">Tausif <span>Alam</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#home" data-nav>Home</a></li>
+      <li><a href="#about" data-nav>About</a></li>
+      <li><a href="#experience" data-nav>Experience</a></li>
+      <li><a href="#projects" data-nav>Projects</a></li>
+      <li><a href="#contact" data-nav>Contact</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">
+      <span></span>
+    </button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ============================================================
+       HERO
+       ============================================================ -->
+  <section id="home" class="hero">
+    <div class="container hero-grid">
+      <div>
+        <p class="eyebrow">Open to internships &amp; collaborations</p>
+        <h1>Hi, I'm <em>Tausif Alam</em></h1>
+        <p class="hero-sub">B.Com Multidisciplinary Student · Generative AI &amp; Web Development Enthusiast</p>
+        <p class="hero-copy">
+          I'm a second-year B.Com Multidisciplinary student who builds practical web
+          projects on the side — mixing a commerce background with a growing interest
+          in Generative AI, web development, and clean interface design.
+        </p>
+        <div class="hero-actions">
+          <a href="#projects" class="btn btn-primary">View My Projects</a>
+          <a href="#contact" class="btn btn-outline">Contact Me</a>
+        </div>
+      </div>
+
+      <!-- Signature visual: an animated "ledger line" — a rising
+           balance chart, echoing the budget/cashflow projects below. -->
+      <div class="ledger-chart reveal" aria-hidden="true">
+        <div class="ledger-chart-head">
+          <span>Ledger — Running Balance</span>
+          <span>FY 2026</span>
+        </div>
+        <svg viewBox="0 0 480 200" preserveAspectRatio="none">
+          <line x1="0" y1="50"  x2="480" y2="50"  stroke="var(--line)" stroke-width="1"/>
+          <line x1="0" y1="100" x2="480" y2="100" stroke="var(--line)" stroke-width="1"/>
+          <line x1="0" y1="150" x2="480" y2="150" stroke="var(--line)" stroke-width="1"/>
+          <path class="ledger-line" d="M10,170 L90,150 L160,160 L230,100 L300,110 L370,55 L465,30" />
+          <circle class="ledger-dot" cx="465" cy="30" r="6"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       ABOUT
+       ============================================================ -->
+  <section id="about">
+    <div class="container">
+      <p class="eyebrow">About</p>
+      <h2 class="section-heading">A commerce mindset, a builder's habits</h2>
+
+      <div class="about-grid">
+        <div class="card reveal">
+          <p class="about-lead">
+            I'm currently a <strong>second-year B.Com Multidisciplinary student</strong>,
+            balancing coursework with a genuine curiosity for technology. Outside of
+            class, I spend my time exploring <strong>Generative AI</strong>, learning
+            <strong>web development</strong>, and experimenting with
+            <strong>UI design</strong> — building small, practical projects to sharpen
+            my skills along the way.
+          </p>
+          <div class="interest-tags">
+            <span class="tag">Generative AI</span>
+            <span class="tag">Web Development</span>
+            <span class="tag">UI Design</span>
+            <span class="tag">Technology</span>
+          </div>
+        </div>
+
+        <div class="card reveal">
+          <ul class="ledger-facts">
+            <li class="fact-row"><span class="k">Course</span><span class="v">B.Com Multidisciplinary</span></li>
+            <li class="fact-row"><span class="k">Year</span><span class="v">2nd Year</span></li>
+            <li class="fact-row"><span class="k">Focus areas</span><span class="v">Generative AI · Web Dev</span></li>
+            <li class="fact-row"><span class="k">Currently</span><span class="v">Building side projects</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       EXPERIENCE
+       ============================================================ -->
+  <section id="experience">
+    <div class="container">
+      <p class="eyebrow">Experience</p>
+      <h2 class="section-heading">Hands-on with AI &amp; the web</h2>
+
+      <div class="exp-card reveal">
+        <div class="exp-rail" aria-hidden="true"></div>
+        <div class="exp-body">
+          <div class="exp-head">
+            <h3 class="exp-role">Generative AI &amp; Web Development Intern</h3>
+            <span class="exp-tag">Internship</span>
+          </div>
+          <p class="exp-desc">
+            Hands-on internship experience in Generative AI and web development,
+            gaining practical exposure to AI-assisted workflows, website creation,
+            user interface design, and modern web technologies.
+          </p>
+          <ul class="skill-list">
+            <li>Generative AI</li>
+            <li>Web Development</li>
+            <li>AI-Assisted Workflows</li>
+            <li>UI Design</li>
+            <li>Modern Web Technologies</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PROJECTS
+       ============================================================ -->
+  <section id="projects">
+    <div class="container">
+      <p class="eyebrow">Projects</p>
+      <h2 class="section-heading">Things I've built</h2>
+
+      <div class="project-grid">
+        <article class="project-card reveal">
+          <div class="project-top">
+            <h3 class="project-name">Pixel Calculator</h3>
+            <span class="project-index">01</span>
+          </div>
+          <p class="project-desc">
+            A budget calculation web app for quickly working out and managing
+            everyday expenses — built to make simple financial math fast and
+            fuss-free in the browser.
+          </p>
+          <ul class="project-stack">
+            <li>Web App</li>
+            <li>Generative AI-Assisted</li>
+            <li>UI Design</li>
+          </ul>
+          <a class="btn btn-primary" href="https://clever-pixel-calc.lovable.app" target="_blank" rel="noopener noreferrer" aria-label="View Pixel Calculator project (opens in a new tab)">
+            View Project ↗
+          </a>
+        </article>
+
+        <article class="project-card reveal">
+          <div class="project-top">
+            <h3 class="project-name">Cashflow Engine</h3>
+            <span class="project-index">02</span>
+          </div>
+          <p class="project-desc">
+            A budget-management web application for tracking cash flow — helping
+            organize income and spending so balances stay clear at a glance.
+          </p>
+          <ul class="project-stack">
+            <li>Web App</li>
+            <li>Generative AI-Assisted</li>
+            <li>UI Design</li>
+          </ul>
+          <a class="btn btn-primary" href="https://lovely-style-maker.lovable.app" target="_blank" rel="noopener noreferrer" aria-label="View Cashflow Engine project (opens in a new tab)">
+            View Project ↗
+          </a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CONTACT
+       ============================================================ -->
+  <section id="contact">
+    <div class="container">
+      <p class="eyebrow">Contact</p>
+      <h2 class="section-heading">Let's talk</h2>
+
+      <div class="contact-grid">
+        <ul class="contact-list">
+          <li>
+            <a class="contact-link" href="mailto:tausifbhai767@gamil.com">
+              <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M4 4l8 8 8-8"/></svg>
+              <span>
+                <span class="label">Email</span>
+                <span class="value">tausifbhai767@gamil.com</span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="contact-link" href="tel:+918597442091">
+              <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <span>
+                <span class="label">Phone</span>
+                <span class="value">+91 85974 42091</span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="contact-link" href="https://github.com/tausifbhai767-ai/Portmolio" target="_blank" rel="noopener noreferrer">
+              <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+              <span>
+                <span class="label">GitHub</span>
+                <span class="value">github.com/tausifbhai767-ai</span>
+              </span>
+            </a>
+          </li>
+        </ul>
+
+        <form class="card" id="contactForm" novalidate>
+          <div class="form-field">
+            <label for="cf-name">Name</label>
+            <input type="text" id="cf-name" name="name" required autocomplete="name">
+          </div>
+          <div class="form-field">
+            <label for="cf-email">Email</label>
+            <input type="email" id="cf-email" name="email" required autocomplete="email">
+          </div>
+          <div class="form-field">
+            <label for="cf-message">Message</label>
+            <textarea id="cf-message" name="message" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Send Message</button>
+          <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer>
+  <div class="container footer-inner">
+    <p class="footer-note">&copy; <span id="year"></span> Tausif Alam. All Rights Reserved.</p>
+    <div class="footer-links">
+      <a href="https://github.com/tausifbhai767-ai/Portmolio" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="mailto:tausifbhai767@gamil.com">Email</a>
+    </div>
+  </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="Back to top">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script>
+/* ==================================================================
+   VANILLA JS — no external dependencies
+   Handles: mobile menu, smooth-scroll offset, scroll reveal,
+   active-nav tracking, contact form, footer year, back-to-top.
+   ================================================================== */
+(function(){
+  "use strict";
+
+  /* ---------- Mobile hamburger menu ---------- */
+  var navToggle = document.getElementById('navToggle');
+  var navLinks = document.getElementById('navLinks');
+
+  navToggle.addEventListener('click', function(){
+    var isOpen = navLinks.classList.toggle('open');
+    navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+
+  /* Close mobile menu after a link is tapped */
+  document.querySelectorAll('[data-nav]').forEach(function(link){
+    link.addEventListener('click', function(){
+      navLinks.classList.remove('open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  /* ---------- Scroll reveal animations ---------- */
+  var revealItems = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window){
+    var revealObserver = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (entry.isIntersecting){
+          entry.target.classList.add('is-visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    revealItems.forEach(function(item){ revealObserver.observe(item); });
+  } else {
+    /* Fallback: show everything immediately */
+    revealItems.forEach(function(item){ item.classList.add('is-visible'); });
+  }
+
+  /* ---------- Active nav link based on current section ---------- */
+  var sections = document.querySelectorAll('main section[id]');
+  var navAnchors = document.querySelectorAll('.nav-links a[data-nav]');
+
+  function setActiveLink(id){
+    navAnchors.forEach(function(a){
+      a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+    });
+  }
+
+  if ('IntersectionObserver' in window){
+    var navObserver = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (entry.isIntersecting){
+          setActiveLink(entry.target.id);
+        }
+      });
+    }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+    sections.forEach(function(sec){ navObserver.observe(sec); });
+  }
+
+  /* ---------- Contact form (no backend) ---------- */
+  var form = document.getElementById('contactForm');
+  var status = document.getElementById('formStatus');
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+
+    if (!form.checkValidity()){
+      status.textContent = 'Please fill in every field before sending.';
+      status.classList.add('visible');
+      return;
+    }
+
+    var nameValue = document.getElementById('cf-name').value.trim();
+    status.textContent = 'Thanks for reaching out, ' + nameValue + '! I\u2019ll get back to you soon.';
+    status.classList.add('visible');
+    form.reset();
+  });
+
+  /* ---------- Footer year ---------- */
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  /* ---------- Back to top button ---------- */
+  var backToTop = document.getElementById('backToTop');
+
+  window.addEventListener('scroll', function(){
+    backToTop.classList.toggle('visible', window.scrollY > 480);
+  }, { passive: true });
+
+  backToTop.addEventListener('click', function(){
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+})();
+</script>
+</body>
+</html>
